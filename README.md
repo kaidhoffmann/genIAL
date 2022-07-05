@@ -5,7 +5,7 @@ The modeling is done in three steps:
 
     - assigning 3D galaxy axis ratios
     - assigning 3D galaxy orientations
-    - projecting 3D galaxies along the observed line of sight to obtain the 2D ellipticities
+    - projecting 3D galaxies along the observed line of sight
 
 # reference
 Details about the IA model are described here https://arxiv.org/abs/2206.14219.
