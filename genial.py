@@ -46,7 +46,7 @@ class IntrinsicAlignment(object):
         return q, s
 
     def _random_vector(self, size):
-        """Returns a random unit vector"""
+        """Returns a randomly oriented unit vector"""
         phi = np.random.uniform(0, np.pi*2, size)
 
         cos_theta = np.random.uniform(-1, 1, size)
@@ -163,6 +163,7 @@ class IntrinsicAlignment(object):
         return vec_rand
 
     def misalignment_parameters_v0(self, gal_kind, gal_color, vm, p_cr, p_cb, p_sr, p_sb):
+        """ set width of Fisher distribution as function of galaxy properties """
 
         centrals_red  = (gal_kind == Galaxy.Kind.CENTRAL) & (gal_color == Galaxy.Color.RED)
         satellites_red   = (gal_kind == Galaxy.Kind.SATELLITE) & (gal_color == Galaxy.Color.RED)
@@ -196,7 +197,6 @@ class IntrinsicAlignment(object):
         Br = np.cross(Ar, Cr)
 
         # normalize B_rand
-        # Kai: warning, if B_rand_abs = 0?
         Br /= np.linalg.norm(Br, axis=1)[None, :].T
 
         # orthogonal minor axis C_rand = (B_rand x A_rand)
