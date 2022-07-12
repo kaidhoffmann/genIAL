@@ -1,3 +1,6 @@
+# table with shape parameters
+ia_shape_parameters.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
