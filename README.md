@@ -19,6 +19,12 @@ The modeling is done in three steps:
 - running genIAL in a pipeline for different model settings and computing IA two-point statistics for each setting
 
   https://colab.research.google.com/drive/1C7pUOO8q5cNGpTBPMTzKLwE8InYLix3R?usp=sharing
+  
+- model galaxy 2D shapes for random 3D galaxy orientations
+  
+  https://colab.research.google.com/drive/1SN-X30pE6kW7NL_1yAE6s1NKcbfBVyCG?usp=sharing
+
+
 
 # reference
 Details about the IA model are described in [Hoffmann et al. 2022](https://arxiv.org/abs/2206.14219).
