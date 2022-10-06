@@ -2,14 +2,17 @@
 
 ![distribution of simulated galaxies with shapes and alignment](gal_dist.png)
 
-genIAL is a python code that generates intrinsic alignment (IA) of galaxies by assigning intrinsic shapes and orientations based on the galaxies' photometric properties as well as the orientation and angular momentum of their dark matter host haloes. The code is fully vectorized, allowing it to be run on large datasets using the Apache Spark framework.
+genIAL is a python code that generates intrinsic alignment (IA) of galaxies in cosmological simulations, taking into account the galaxy redshift, luminosity and color. The code is fully vectorized, allowing it to be run on large datasets using the Apache Spark framework.
 
-The modeling is done in three steps:
+The IA modeling is done in three steps:
 
-- assigning 3D galaxy axis ratios
+- assigning 3D galaxy shapes
 - assigning 3D galaxy orientations
-- projecting 3D galaxies along the observed line of sight
+- computing the observed 2D shapes and orientations
 
+# reference
+Details about the IA model are described in [Hoffmann et al. 2022](https://arxiv.org/abs/2206.14219).
+Please cite this paper when using the code for your research.
 
 # online example notebooks
 - step-by-step tutorial, showing how to run genIAL on an input file from a cosmological simulation:
@@ -25,10 +28,6 @@ The modeling is done in three steps:
   https://colab.research.google.com/drive/1SN-X30pE6kW7NL_1yAE6s1NKcbfBVyCG?usp=sharing
 
 
-
-# reference
-Details about the IA model are described in [Hoffmann et al. 2022](https://arxiv.org/abs/2206.14219).
-Please cite this paper when using the code for your research.
 
 # contact
 Kai Hoffmann: kai (dot) d (dot) hoffmann (at) gmail (dot) com
