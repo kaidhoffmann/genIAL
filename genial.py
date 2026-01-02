@@ -67,7 +67,7 @@ class IntrinsicAlignment(object):
 
         return vec_perp
 
-    def orientations(self, gal_kind, gal_color, vg, vh, Ah, Ch, Jh):
+    def orientations_v1(self, gal_kind, gal_color, vg, vh, Ah, Ch, Jh):
         """recipe for pointing galaxies (used in Hoffmann et al. 2022)"""
         Ag = np.full(Ah.shape, np.nan)
         Cg = np.full(Ah.shape, np.nan)
@@ -185,7 +185,7 @@ class IntrinsicAlignment(object):
 
         return vec_rand
 
-    def misalignment_parameters_v0(self, gal_kind, gal_color, vm, p_cr, p_cb, p_sr, p_sb):
+    def misalignment_parameters_v1(self, gal_kind, gal_color, vm, p_cr, p_cb, p_sr, p_sb):
         """ set width of Fisher distribution as function of galaxy properties (used in Hoffmann et al. 2022)"""
 
         centrals_red  = (gal_kind == Galaxy.Kind.CENTRAL) & (gal_color == Galaxy.Color.RED)
