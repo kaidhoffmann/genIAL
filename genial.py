@@ -68,7 +68,7 @@ class IntrinsicAlignment(object):
         return vec_perp
 
     def orientations(self, gal_kind, gal_color, vg, vh, Ah, Ch, Jh):
-        """recipe for pointing galaxies"""
+        """recipe for pointing galaxies (used in Hoffmann et al. 2022)"""
         Ag = np.full(Ah.shape, np.nan)
         Cg = np.full(Ah.shape, np.nan)
 
@@ -92,11 +92,34 @@ class IntrinsicAlignment(object):
         Ag[satellites_Ag_zero==True] = self._random_vector(len(Ag[satellites_Ag_zero==True]))
         Ag[satellites_Ag_zero==False] /= np.linalg.norm(Ag[satellites_Ag_zero==False], axis=1)[:,None]
 
+        Cg[satellites] = self._random_perpendicular(Ag[satellites])
+
+        return Ag, Cg
+
+    def orientations_v2(self, gal_kind, vg, vh, Ah, Ch):
+        """recipe for pointing galaxies (used in Hoffmann et al. 2026)"""
+        Ag = np.full(Ah.shape, np.nan)
+        Cg = np.full(Ah.shape, np.nan)
+
+        centrals  = (gal_kind == Galaxy.Kind.CENTRAL)
+        satellites   = (gal_kind == Galaxy.Kind.SATELLITE)
+
+        # CENTRAL-RED (same major and minor axis as host halo)
+        Ag[centrals] = Ah[centrals]
+        Cg[centrals] = Ch[centrals]
+
+        # SATELLITES (major axis pointing to halo center, minor axis lies on tangential plane)
+        Ag[satellites] = vg[satellites] - vh[satellites]
+
+        satellites_Ag_zero = satellites & (np.linalg.norm(Ag, axis=1)[:,None]==0).T[0]
+
+        Ag[satellites_Ag_zero==True] = self._random_vector(len(Ag[satellites_Ag_zero==True]))
+        Ag[satellites_Ag_zero==False] /= np.linalg.norm(Ag[satellites_Ag_zero==False], axis=1)[:,None]
 
         Cg[satellites] = self._random_perpendicular(Ag[satellites])
 
         return Ag, Cg
-    
+
     def _rotate(self, v, phi, theta):
         v = v.T
 
