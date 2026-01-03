@@ -67,8 +67,8 @@ class IntrinsicAlignment(object):
 
         return vec_perp
 
-    def orientations(self, gal_kind, gal_color, vg, vh, Ah, Ch, Jh):
-        """recipe for pointing galaxies"""
+    def orientations_v1(self, gal_kind, gal_color, vg, vh, Ah, Ch, Jh):
+        """recipe for pointing galaxies (used in Hoffmann et al. 2022)"""
         Ag = np.full(Ah.shape, np.nan)
         Cg = np.full(Ah.shape, np.nan)
 
@@ -92,11 +92,34 @@ class IntrinsicAlignment(object):
         Ag[satellites_Ag_zero==True] = self._random_vector(len(Ag[satellites_Ag_zero==True]))
         Ag[satellites_Ag_zero==False] /= np.linalg.norm(Ag[satellites_Ag_zero==False], axis=1)[:,None]
 
+        Cg[satellites] = self._random_perpendicular(Ag[satellites])
+
+        return Ag, Cg
+
+    def orientations_v2(self, gal_kind, vg, vh, Ah, Ch):
+        """recipe for pointing galaxies (used in Hoffmann et al. 2026)"""
+        Ag = np.full(Ah.shape, np.nan)
+        Cg = np.full(Ah.shape, np.nan)
+
+        centrals  = (gal_kind == Galaxy.Kind.CENTRAL)
+        satellites   = (gal_kind == Galaxy.Kind.SATELLITE)
+
+        # CENTRAL-RED (same major and minor axis as host halo)
+        Ag[centrals] = Ah[centrals]
+        Cg[centrals] = Ch[centrals]
+
+        # SATELLITES (major axis pointing to halo center, minor axis lies on tangential plane)
+        Ag[satellites] = vg[satellites] - vh[satellites]
+
+        satellites_Ag_zero = satellites & (np.linalg.norm(Ag, axis=1)[:,None]==0).T[0]
+
+        Ag[satellites_Ag_zero==True] = self._random_vector(len(Ag[satellites_Ag_zero==True]))
+        Ag[satellites_Ag_zero==False] /= np.linalg.norm(Ag[satellites_Ag_zero==False], axis=1)[:,None]
 
         Cg[satellites] = self._random_perpendicular(Ag[satellites])
 
         return Ag, Cg
-    
+
     def _rotate(self, v, phi, theta):
         v = v.T
 
@@ -162,8 +185,8 @@ class IntrinsicAlignment(object):
 
         return vec_rand
 
-    def misalignment_parameters_v0(self, gal_kind, gal_color, vm, p_cr, p_cb, p_sr, p_sb):
-        """ set width of Fisher distribution as function of galaxy properties """
+    def misalignment_parameters_v1(self, gal_kind, gal_color, vm, p_cr, p_cb, p_sr, p_sb):
+        """ set width of Fisher distribution as function of galaxy properties (used in Hoffmann et al. 2022)"""
 
         centrals_red  = (gal_kind == Galaxy.Kind.CENTRAL) & (gal_color == Galaxy.Color.RED)
         satellites_red   = (gal_kind == Galaxy.Kind.SATELLITE) & (gal_color == Galaxy.Color.RED)
@@ -184,7 +207,50 @@ class IntrinsicAlignment(object):
         sigma[sigma<0.1]=0.1
 
         return sigma
+
+
+    def misalignment_parameters_v2(self, gal_kind, vmag, vcol, vz, p_cent, p_sat):
+        """ set width of Fisher distribution as function of galaxy properties (used in Hoffmann et al. 2026)"""
+
+        #compute clipped version of (vx/x0+a)^b, clipping negative basis to avoid complex numbers
+        def sigma_xclip(vx, x0, a, b):
+
+            basis = vx/x0+a
+
+            #make sure basis is not negative and >0 for negative exponents
+            if b<0: basis[basis<=0]=0.001
+            else: basis[basis<0]=0
+
+            return basis**b
+
+
+        def sigma(mag, col, z, p):
     
+            z0, mag0, col0 = 1.0, -22.0, 1.0
+
+            sig_z = sigma_xclip(z, z0, 1.0, p[1])
+            sig_mag = sigma_xclip(mag, mag0, p[2],p[3])
+            sig_col = sigma_xclip(col, col0, p[4],p[5])
+
+            sig = p[0] * sig_z * sig_mag * sig_col
+
+            #for numerical stability when passing sigma to misis fisher distribution
+            # in particular important for small values
+            sig[sig>10] = 10
+            sig[sig<0.01] = 0.01
+
+            return sig
+
+        centrals  = (gal_kind == Galaxy.Kind.CENTRAL)
+        satellites = (gal_kind == Galaxy.Kind.SATELLITE)
+
+        vsig = np.full(vmag.shape, np.nan)
+
+        vsig[centrals] =  sigma(vmag[centrals], vcol[centrals], vz[centrals], p_cent)
+        vsig[satellites] =  sigma(vmag[satellites], vcol[satellites], vz[satellites], p_sat)
+
+        return vsig
+
 
     def randomize(self, Ag, Cg, sigma):
         """make randomized versions of input vectors A and C"""
